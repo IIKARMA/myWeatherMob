@@ -1,22 +1,24 @@
-import { FC, PropsWithChildren } from "react";
-import { StyleProp, StyleSheet, ViewStyle } from "react-native";
+import { StyleSheet } from "react-native";
 
 import { SafeAreaView } from "react-native-safe-area-context";
-import { background } from "../../colors";
+import { useTypedSelector } from "../../store/store";
 
-interface ScreenProps {
-	style?: StyleProp<ViewStyle>;
-}
 const Screen = ({ children }: any) => {
-	// eslint-disable-next-line react/react-in-jsx-scope
-	return <SafeAreaView style={s.container}>{children}</SafeAreaView>;
+	const globaltheme = useTypedSelector((state) => state.theme.theme);
+
+	return (
+    <SafeAreaView
+      style={[s.container, { backgroundColor: globaltheme.background }]}
+    >
+      {children}
+    </SafeAreaView>
+  );
 };
 export default Screen;
 const s = StyleSheet.create({
 	container: {
 		flex: 1,
-		backgroundColor: background,
-		paddingHorizontal: 16,
-		paddingTop:40,
+				paddingHorizontal: 16,
+		paddingTop: 40,
 	},
 });

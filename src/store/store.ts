@@ -1,8 +1,6 @@
-import { combineReducers, configureStore } from '@reduxjs/toolkit'
+import { combineReducers, configureStore } from "@reduxjs/toolkit";
 
-import {reducerPath, weatherApi } from '../api/weather'
-import { setupListeners } from '@reduxjs/toolkit/query'
-import weatherSlice from './weatherSlice'
+ 
 // const store = configureStore({
 // 	reducer: {
 //  		weatherSlice,
@@ -13,18 +11,18 @@ import weatherSlice from './weatherSlice'
 // setupListeners(store.dispatch)
 // export default store
 
+import { ConfigureStoreOptions } from "@reduxjs/toolkit";
+import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
+import weather from "./weatherSlice";
+import theme from "./themeSlice";
 
-import {  ConfigureStoreOptions } from '@reduxjs/toolkit'
-import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux'
-import weather  from './weatherSlice'
-
-  const createStore = (
-  options?: ConfigureStoreOptions['preloadedState'] | undefined
+const createStore = (
+  options?: ConfigureStoreOptions["preloadedState"] | undefined
 ) =>
   configureStore({
     reducer: {
-    weather:weather,
-       
+      weather: weather,
+      theme: theme,
     },
     middleware: (getDefaultMiddleware) =>
       getDefaultMiddleware().concat( ),

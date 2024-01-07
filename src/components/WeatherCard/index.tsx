@@ -1,28 +1,32 @@
 import { FC, useDeferredValue, useMemo } from "react";
-import { StyleSheet, Text, View } from "react-native";
+import { Appearance, StyleSheet, Text, View } from "react-native";
 import { useTypedSelector } from "../../store/store";
 import { secondBg, text } from "../../colors";
+interface ForecastState {
+  day: unknown;
+  hour: unknown[];
+}
 interface WeatherCardProps {
   cityName: string;
   temperature: number;
-  feelslikeTemperature: number;
   lastUpdated: string;
-  forecast: [];
+  forecast: ForecastState[];
 }
 const WeatherCard: FC<WeatherCardProps> = ({
   cityName,
   temperature,
-  feelslikeTemperature,
   lastUpdated,
   forecast,
 }) => {
+  const globaltheme = useTypedSelector((state) => state.theme.theme);
+
   const globalWeatherTreeDays = useTypedSelector(
     (state) => state.weather.weatherTreDays
   );
-  console.log("globalWeatherTreeDays", globalWeatherTreeDays.length);
 
   const hours = useMemo(
     () =>
+      forecast &&
       forecast?.length > 0 &&
       forecast[0]?.hour?.slice(
         Number(Number(new Date(lastUpdated).getHours())),
@@ -30,28 +34,31 @@ const WeatherCard: FC<WeatherCardProps> = ({
       ),
     [forecast]
   );
-  console.log(forecast && forecast[0]?.day);
 
-  // const renderHour=forecast?.length>1&&  [...forecast[0]?.hour].slice( Number(Number(new Date(lastUpdated).getHours())),Number(Number(new Date(lastUpdated).getHours())+4))
   return (
-    <View style={s.contentCard}>
+    <View style={[s.contentCard, { backgroundColor: globaltheme?.secondBg }]}>
       <View style={s.headerCard}>
-        <Text style={[s.text]}>{cityName || ""}</Text>
-        <Text style={[s.text]}>{Math.floor(temperature) + "℃" || ""}</Text>
+        <Text style={[{ color: globaltheme.text }]}>{cityName || ""}</Text>
+        <Text style={[{ color: globaltheme.text }]}>
+          {Math.floor(temperature) + "℃" || ""}
+        </Text>
       </View>
       <View style={s.hoursBlock}>
-        {hours?.length > 0 &&
+        {hours &&
+          hours?.length > 0 &&
           hours?.map((item: any) => (
             <View
               key={item.time}
               style={{ flexShrink: 1, gap: 5, alignItems: "center" }}
             >
-              <Text style={[s.text]}>
+              <Text style={[{ color: globaltheme.text }]}>
                 {new Date(item.time).getHours() <= 9
                   ? "0" + new Date(item.time).getHours()
                   : new Date(item.time).getHours() || ""}
               </Text>
-              <Text style={[s.text, { fontWeight: "500" }]}>
+              <Text
+                style={[{ color: globaltheme.text }, { fontWeight: "500" }]}
+              >
                 {Math.floor(item.temp_c)}℃
               </Text>
             </View>
@@ -61,17 +68,49 @@ const WeatherCard: FC<WeatherCardProps> = ({
         {globalWeatherTreeDays &&
           globalWeatherTreeDays?.map((item: any) => {
             return (
-              <View style={{justifyContent:'space-between', alignItems:'center',flexDirection:'row',gap:20}}>
-               <>
-               <Text style={[s.text, {fontWeight: "500" ,width:'10%'}]}>
-                  {new Date(item.date).toString().slice(0, 4)}
-                </Text>
-                <Text style={[s.text,{textAlign:'left',fontWeight:'600',color:'gray'}]}>{Math.floor(item.day.mintemp_c)}℃</Text>
+              <View key={item.date}
+                style={{
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  flexDirection: "row",
+                  gap: 20,
+                }}
+              >
+                <>
+                  <Text
+                    style={[
+                      { color: globaltheme.text },
+                      { fontWeight: "500", width: "10%" },
+                    ]}
+                  >
+                    {new Date(item.date).toString().slice(0, 4)}
+                  </Text>
+                  <Text
+                    style={[
+                      { color: globaltheme.text },
+                      { textAlign: "left", fontWeight: "600", color: "gray" },
+                    ]}
+                  >
+                    {Math.floor(item.day.mintemp_c)}℃
+                  </Text>
                 </>
-                <View style={{backgroundColor:'#888',borderRadius:16,width:
-                '35%',height:5}}/>
-                 <>
-                <Text style={[s.text,{fontWeight:'600',color:text}]}>{Math.floor(item.day.maxtemp_c)}℃</Text>
+                <View
+                  style={{
+                    backgroundColor: "#888",
+                    borderRadius: 16,
+                    width: "35%",
+                    height: 5,
+                  }}
+                />
+                <>
+                  <Text
+                    style={[
+                      { color: globaltheme.text },
+                      { fontWeight: "600", color: globaltheme.text },
+                    ]}
+                  >
+                    {Math.floor(item.day.maxtemp_c)}℃
+                  </Text>
                 </>
               </View>
             );
@@ -85,7 +124,6 @@ export default WeatherCard;
 const s = StyleSheet.create({
   contentCard: {
     gap: 10,
-    backgroundColor: secondBg ,
     borderRadius: 12,
     padding: 16,
   },

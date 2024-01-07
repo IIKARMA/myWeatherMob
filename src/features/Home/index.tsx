@@ -3,6 +3,7 @@ import {
   Alert,
   Button,
   Image,
+  ScrollView,
   Text,
   TouchableOpacity,
   View,
@@ -14,7 +15,6 @@ import Screen from "../../components/Screen";
 import { fetchWeather, fetchWeatherRangeDays } from "../../store/weatherSlice";
 import { useAppDispatch, useTypedSelector } from "../../store/store";
 import WeatherCard from "../../components/WeatherCard";
-import { secondBg, text } from "../../colors";
 import SwitchTheme from "../../components/SwitchTheme";
 interface Location {
   latitude: number;
@@ -23,7 +23,9 @@ interface Location {
 
 const Home = () => {
   const dispatch = useAppDispatch();
+
   const globalPolling = useTypedSelector((state) => state.weather.weatherToday);
+  const globaltheme = useTypedSelector((state) => state.theme.theme);
 
   const [countDays, setCountDays] = useState<number>(3);
   const [location, setLocation] = useState<Location>();
@@ -35,10 +37,7 @@ const Home = () => {
   const getLocation = useCallback(async () => {
     const result = await requestPermissionLocation();
 
-    if (
-      result["ios.permission.LOCATION_ALWAYS"] === "granted" &&
-      result["ios.permission.LOCATION_WHEN_IN_USE"] === "granted"
-    ) {
+    if (result === "granted") {
       Geolocation.getCurrentPosition(
         (position) => {
           dispatch(
@@ -60,7 +59,7 @@ const Home = () => {
       setCity(globalPolling?.location.name);
       dispatch(fetchWeatherRangeDays({ city: city, days: countDays }));
     }
-  }, [countDays]);
+  }, []);
 
   useEffect(() => {
     getLocation();
@@ -72,18 +71,20 @@ const Home = () => {
 
   return (
     <Screen>
-      <>
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <View style={{ alignSelf: "flex-end", paddingVertical: 10 }}>
+          <SwitchTheme />
+        </View>
         <WeatherCard
           forecast={globalPolling?.forecast?.forecastday}
           cityName={city}
           temperature={globalPolling?.current?.temp_c}
           lastUpdated={globalPolling?.current?.last_updated}
-          feelslikeTemperature={globalPolling?.current?.feelslike_c}
         />
 
         <TouchableOpacity
           style={{
-            backgroundColor: secondBg,
+            backgroundColor: globaltheme.secondBg,
             alignSelf: "center",
             padding: 10,
             borderRadius: 12,
@@ -91,13 +92,11 @@ const Home = () => {
           }}
           onPress={() => {
             setCountDays(countDays !== 14 ? 14 : 3);
-            getLocation();
           }}
         >
-          <Text style={{ color: text }}>More</Text>
+          <Text style={{ color: globaltheme.text }}>More</Text>
         </TouchableOpacity>
-        <SwitchTheme/>
-      </>
+      </ScrollView>
     </Screen>
   );
 };
